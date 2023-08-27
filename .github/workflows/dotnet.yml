@@ -40,7 +40,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         TAG_REF_NAME: ${{ github.event.ref }}
       with:
-        tag: $(TAG_REF_NAME##*/)
+        tag: ${TAG_REF_NAME##*/v}
         draft: false
         prerelease: false
 
