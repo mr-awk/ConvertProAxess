@@ -46,15 +46,6 @@ jobs:
         draft: false
         prerelease: false
 
-    - name: Output Release URL File
-      run: echo ${{ steps.create_release.outputs.upload_url }} > release_url.txt
-
-    - name: Save Release URL File for publish
-      uses: actions/upload-artifact@v3
-      with:
-        name: release_url
-        path: release_url.txt
-
   publish:
     name: Publish
     if: startsWith(github.event.ref, 'refs/tags/v')
@@ -63,16 +54,6 @@ jobs:
     steps:
     - name: Checkout Code
       uses: actions/checkout@v3
-
-    - name: Load Release URL File from release job
-      uses: actions/download-artifact@v3
-      with:
-        name: release_url
-        path: ./artifacts
-
-    - name: show artifacts
-      run: cat release_url.txt
-      working-directory: ./artifacts
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
@@ -85,14 +66,12 @@ jobs:
     - name: Build
       run: |
         dotnet publish --os win -c Release -o ./publish -p:PublishDir=./publish --no-restore
-        zip -r ./publish/convertproaxess.zip ./publish 
+        zip -r ./publish/ConvertProAxess.zip ./publish 
 
     - name: Create Release File Name & Upload URL
       id: get_release_info
       run: |
         echo "FILE_NAME=${REPOSITORY_NAME##*/}-${TAG_REF_NAME##*/v}" >> $GITHUB_OUTPUT
-        value=`cat ./artifacts/release_url.txt`
-        echo "UPLOAD_URL=$value" >> $GITHUB_OUTPUT
       env:
         TAG_REF_NAME: ${{ github.event.ref }}
         REPOSITORY_NAME: ${{ github.repository }}
@@ -103,8 +82,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        #upload_url: ${{ steps.get_release_info.outputs.UPLOAD_URL }}
         upload_url: ${{ needs.release.outputs.upload_url }}
-        asset_path: ./publish/convertproaxess.zip
+        asset_path: ./publish/ConvertProAxess.zip
         asset_name: ${{ steps.get_release_info.outputs.FILE_NAME }}.zip
         asset_content_type: application/zip
