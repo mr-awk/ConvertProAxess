@@ -3,26 +3,95 @@
 
 name: .NET
 
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+on: [push, pull_request]
 
 jobs:
-  build:
-
+  test:
+    name: Debug Build & Test
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v3
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 6.0.x
+
     - name: Restore dependencies
       run: dotnet restore
+
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build -a x64 -f net6.0 --no-restore -c Debug
+
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test -c Debug --no-build && echo ${{ github.event.ref }}
+
+  release:
+    name: Create Github Release
+    if: startsWith(github.event.ref, 'refs/tags/v')
+    needs: [test]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+
+    - name: Output Release URL File
+      run: echo ${{ steps.create_release.outputs.upload_url }} > release_url.txt
+
+    - name: Save Release URL File for publish
+      uses: actions/upload-artifact@v3
+      with:
+        name: release_url
+        path: release_url.txt
+
+  publish:
+    name: Publish
+    if: startsWith(github.event.ref, 'refs/tags/v') # works only version tagged
+    needs: [test, release]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Load Release URL File from release job
+      uses: actions/download-artifact@v3
+      with:
+        name: release_url
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 6.0.x
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: build
+      run: dotnet publish -f net6.0 -a win-x64 -c Release -o ./publish -p:PublishDir=./publish --self-contained --no-restore && zip -r ./publish ./publish/convertproaxess.zip
+
+    - name: Create Release File Name & Upload URL
+      id: get_release_info
+      run: echo "::set-output name=file_name::${REPOSITORY_NAME##*/}-${TAG_REF_NAME##*/v}" && value='cat release_url.txt' && echo ""::set-output name=upload_url::$value"
+      env:
+        TAG_REF_NAME: ${{ github.ref }}
+        REPOSITORY_NAME: ${{ github.repository }}
+    
+    - name: Upload Release Asset
+      id: upload-release-asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.get_release_info.outputs.upload_url }}
+        asset_path: ./publish/convertproaxess.zip
+        asset_name: ${{ steps.get_release_info.outputs.file_name }}.zip
+        asset_content_type: application/zip
