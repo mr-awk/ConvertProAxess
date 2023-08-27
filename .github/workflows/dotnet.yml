@@ -35,12 +35,12 @@ jobs:
     steps:
     - name: Create Release
       id: create_release
-      uses: ncipollo/release-action@v1
+      uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        TAG_REF_NAME: ${{ github.event.ref }}
       with:
-        tag: ${TAG_REF_NAME##*/v}
+        tag_name: ${{ github.event.ref }}
+        release_name: Release ${{ github.event.ref }}
         draft: false
         prerelease: false
 
