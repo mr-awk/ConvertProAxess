@@ -76,7 +76,7 @@ jobs:
       run: dotnet restore
 
     - name: Build
-      run: dotnet publish --os win -c Release -o ./publish -p:PublishDir=./publish --no-restore && zip -r ./publish ./publish/convertproaxess.zip
+      run: dotnet publish --os win -c Release -o ./publish -p:PublishDir=./publish --no-restore && ls -la && zip -r ./publish ./publish/convertproaxess.zip
 
     - name: Create Release File Name & Upload URL
       id: get_release_info
