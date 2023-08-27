@@ -76,7 +76,9 @@ jobs:
       run: dotnet restore
 
     - name: Build
-      run: dotnet publish --os win -c Release -o ./publish -p:PublishDir=./publish --no-restore && ls -la && zip -r ./publish/convertproaxess.zip ./publish 
+      run: |
+        dotnet publish --os win -c Release -o ./publish -p:PublishDir=./publish --no-restore
+        zip -r ./publish/convertproaxess.zip ./publish 
 
     - name: Create Release File Name & Upload URL
       id: get_release_info
@@ -96,5 +98,5 @@ jobs:
       with:
         upload_url: ${{ steps.get_release_info.outputs.upload_url }}
         asset_path: ./publish/convertproaxess.zip
-        asset_name: ${{ steps.get_release_info.outputs.file_name }}.zip
+        asset_name: ${{ steps.get_release_info.outputs.file_name }}ConvertProAxess.zip
         asset_content_type: application/zip
