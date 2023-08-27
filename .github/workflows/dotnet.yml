@@ -38,8 +38,9 @@ jobs:
       uses: ncipollo/release-action@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        TAG_REF_NAME: ${{ github.event.ref }}
       with:
-        tag: ${{ github.event.ref }}
+        tag: $(TAG_REF_NAME##*/)
         draft: false
         prerelease: false
 
