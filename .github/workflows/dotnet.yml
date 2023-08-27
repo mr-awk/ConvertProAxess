@@ -40,7 +40,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ github.event.ref }}
-        name: Release ${{ github.event.ref }}
+        name: Release ${GITHUB_REF#refs/tags/}
         draft: false
         prerelease: false
 
@@ -55,7 +55,7 @@ jobs:
 
   publish:
     name: Publish
-    if: startsWith(github.event.ref, 'refs/tags/v') # works only version tagged
+    if: startsWith(github.event.ref, 'refs/tags/v')
     needs: [test, release]
     runs-on: ubuntu-latest
     steps:
