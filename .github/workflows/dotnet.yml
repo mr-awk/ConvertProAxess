@@ -35,11 +35,11 @@ jobs:
     steps:
     - name: Create Release
       id: create_release
-      uses: softprops/action-gh-release@v1
+      uses: ncipollo/release-action@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ github.event.ref }}
+        tag: ${{ github.event.ref }}
         draft: false
         prerelease: false
 
