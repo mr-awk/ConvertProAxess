@@ -38,10 +38,10 @@ jobs:
       uses: softprops/action-gh-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        TAG_REF_NAME: ${{ github.event.ref }}
+        TAG_REF_NAME: ${{ github.ref }}
       with:
         tag_name: ${{ github.event.ref }}
-        name: Release v${TAG_REF_NAME##*/v}
+        name: "Release ${TAG_REF_NAME##*/v}"
         draft: false
         prerelease: false
 
