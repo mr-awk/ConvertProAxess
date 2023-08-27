@@ -22,7 +22,7 @@ jobs:
       run: dotnet restore
 
     - name: Build
-      run: dotnet build -a x64 -f net6.0 --no-restore -c Debug
+      run: dotnet build --no-restore -c Debug
 
     - name: Test
       run: dotnet test -c Debug --no-build && echo ${{ github.event.ref }}
@@ -76,7 +76,7 @@ jobs:
       run: dotnet restore
 
     - name: build
-      run: dotnet publish -f net6.0 -a win-x64 -c Release -o ./publish -p:PublishDir=./publish --self-contained --no-restore && zip -r ./publish ./publish/convertproaxess.zip
+      run: dotnet publish -c Release -o ./publish -p:PublishDir=./publish --self-contained --no-restore && zip -r ./publish ./publish/convertproaxess.zip
 
     - name: Create Release File Name & Upload URL
       id: get_release_info
