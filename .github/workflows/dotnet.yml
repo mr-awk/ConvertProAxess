@@ -82,12 +82,10 @@ jobs:
 
     - name: Create Release File Name & Upload URL
       id: get_release_info
-      # echo ::set-output name=file_name::${REPOSITORY_NAME##*/}-${TAG_REF_NAME##*/v}
-      # echo "::set-output name={upload_url}::{value}"
       run: |
-        echo "{FILE_NAME}=${REPOSITORY_NAME}-${TAG_REF_NAME/v}" >> $GITHUB_OUTPUT
+        echo "FILE_NAME=${REPOSITORY_NAME##*/}-${TAG_REF_NAME##*/v}" >> $GITHUB_OUTPUT
         value=`cat release_url.txt`
-        echo "{UPLOAD_URL}={value}" >> $GITHUB_OUTPUT
+        echo "UPLOAD_URL={value}" >> $GITHUB_OUTPUT
       env:
         TAG_REF_NAME: ${{ github.ref }}
         REPOSITORY_NAME: ${{ github.repository }}
@@ -98,7 +96,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: $UPLOAD_URL
+        upload_url: ${{ steps.get_release_info.outputs.UPLOAD_URL }}
         asset_path: ./publish/convertproaxess.zip
-        asset_name: $FILE_NAME.zip
+        asset_name: ${{ steps.get_release_info.outputs.FILE_NAME }}.zip
         asset_content_type: application/zip
