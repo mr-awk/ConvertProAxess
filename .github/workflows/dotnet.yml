@@ -40,7 +40,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ github.event.ref }}
-        name: Release ${{ github.event.ref }}
         draft: false
         prerelease: false
 
@@ -87,7 +86,7 @@ jobs:
         value=`cat release_url.txt`
         echo "UPLOAD_URL=$value" >> $GITHUB_OUTPUT
       env:
-        TAG_REF_NAME: ${{ github.ref }}
+        TAG_REF_NAME: ${{ github.event.ref }}
         REPOSITORY_NAME: ${{ github.repository }}
     
     - name: Upload Release Asset
